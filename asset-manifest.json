@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/ros-phone-sensors-app/static/css/main.6dea0f05.chunk.css",
-    "main.js": "/ros-phone-sensors-app/static/js/main.2429f2d1.chunk.js",
-    "main.js.map": "/ros-phone-sensors-app/static/js/main.2429f2d1.chunk.js.map",
+    "main.js": "/ros-phone-sensors-app/static/js/main.f21246d1.chunk.js",
+    "main.js.map": "/ros-phone-sensors-app/static/js/main.f21246d1.chunk.js.map",
     "runtime-main.js": "/ros-phone-sensors-app/static/js/runtime-main.d0bff1bb.js",
     "runtime-main.js.map": "/ros-phone-sensors-app/static/js/runtime-main.d0bff1bb.js.map",
     "static/js/2.0d1133f1.chunk.js": "/ros-phone-sensors-app/static/js/2.0d1133f1.chunk.js",
@@ -17,6 +17,6 @@
     "static/js/runtime-main.d0bff1bb.js",
     "static/js/2.0d1133f1.chunk.js",
     "static/css/main.6dea0f05.chunk.css",
-    "static/js/main.2429f2d1.chunk.js"
+    "static/js/main.f21246d1.chunk.js"
   ]
 }
