@@ -16,7 +16,7 @@ class CameraIMU {
   imu_topic: ROSLIB.Topic;
 
   constructor(ros_master_ip: string) {
-    ros_master_ip = "ws://" + ros_master_ip + ":9090"
+    ros_master_ip = "wss://" + ros_master_ip + ":9090"
     // INITIALIZATION
     this.ros = new ROSLIB.Ros({
       url: ros_master_ip
@@ -49,46 +49,61 @@ class CameraIMU {
       name: "/gyro",
       messageType: "sensor_msgs/Imu",
     });
-    
     this.initialize_event_handlers();
   }
 
   initialize_event_handlers() {
-    // setup event handler to capture the orientation event and store the most recent data in a variable
+    if (window.location.protocol != "https:") {
+      window.location.href = "https:" + window.location.href.substring(window.location.protocol.length);
+    }
 
-    if (window.DeviceOrientationEvent) {
-      // Listen for the deviceorientation event and handle the raw data
-      window.addEventListener('deviceorientation', (eventData) => {
-        // gamma is the left-to-right tilt in degrees, where right is positive
-        this.gamma = eventData.gamma;
+    if (typeof (DeviceOrientationEvent) !== "undefined" && typeof (DeviceOrientationEvent.requestPermission) === "function") {
+      // (optional) Do something before API request prompt.
+      DeviceOrientationEvent.requestPermission()
+        .then(response => {
+          // (optional) Do something after API prompt dismissed.
+          if (response == "granted") {
+            window.addEventListener("deviceorientation", (eventData) => {
+              // gamma is the left-to-right tilt in degrees, where right is positive
+              this.gamma = eventData.gamma;
 
-        // beta is the front-to-back tilt in degrees, where front is positive
-        this.beta = eventData.beta;
+              // beta is the front-to-back tilt in degrees, where front is positive
+              this.beta = eventData.beta;
 
-        // alpha is the compass direction the device is facing in degrees
-        this.alpha = eventData.alpha
-
-      }, false);
-    };
-
-    // setup event handler to capture the acceleration event and store the most recent data in a variable
-
-    if (window.DeviceMotionEvent) {
-      window.addEventListener('devicemotion', (eventData: DeviceMotionEvent) => {
-        // Grab the acceleration from the results
-        var acceleration = eventData.acceleration;
-        this.x = acceleration!.x;
-        this.y = acceleration!.y;
-        this.z = acceleration!.z;
-
-        // Grab the rotation rate from the results
-        var rotation = eventData.rotationRate;
-        this.valpha = rotation!.alpha;
-        this.vgamma = rotation!.gamma;
-        this.vbeta = rotation!.beta;
-      }, false);
+              // alpha is the compass direction the device is facing in degrees
+              this.alpha = eventData.alpha
+            }, false)
+          }
+        })
+        .catch(console.error)
     } else {
-      window.alert("acceleration measurements Not supported.");
+      alert("DeviceOrientationEvent is not defined");
+    }
+
+    if (typeof (DeviceMotionEvent) !== "undefined" && typeof (DeviceMotionEvent.requestPermission) === "function") {
+      // (optional) Do something before API request prompt.
+      DeviceMotionEvent.requestPermission()
+        .then(response => {
+          // (optional) Do something after API prompt dismissed.
+          if (response == "granted") {
+            window.addEventListener("devicemotion", (eventData) => {
+              // Grab the acceleration from the results
+              var acceleration = eventData.acceleration;
+              this.x = acceleration!.x;
+              this.y = acceleration!.y;
+              this.z = acceleration!.z;
+
+              // Grab the rotation rate from the results
+              var rotation = eventData.rotationRate;
+              this.valpha = rotation!.alpha;
+              this.vgamma = rotation!.gamma;
+              this.vbeta = rotation!.beta;
+            }, false)
+          }
+        })
+        .catch(console.error)
+    } else {
+      alert("DeviceMotionEvent is not defined");
     }
   }
   // function that is run by trigger several times a second

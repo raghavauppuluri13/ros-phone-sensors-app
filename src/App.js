@@ -4,10 +4,10 @@ import CameraIMU from "./scripts/camera_imu.ts";
 
 function App() {
   const [rosMasterIp, setRosMasterIp] = useState(
-    localStorage.getItem("rosMasterIp") | ""
+    localStorage.getItem('rosMasterIp') | ""
   );
   const [frontFacing, setFrontFacing] = useState(
-    localStorage.getItem("frontFacing") | true
+    localStorage.getItem('frontFacing') | true
   );
 
   var camera_imu;
@@ -48,14 +48,14 @@ function App() {
   return (
     <div style={{ padding: `${padding}px` }}>
       <label>ROS Master IP Address:</label>
-      <input onChange={onRosIpChange} />
+      <input onChange={onRosIpChange} value={rosMasterIp}/>
       <br />
       <br />
       <button onClick={() => initCameraIMU()}>Initialize</button>
       <br />
       <br />
       <label>Front Facing Camera? </label>
-      <input onChange={onCameraDirChange} type="checkbox" />
+      <input onChange={onCameraDirChange} value={frontFacing} type="checkbox" />
       <div>
         
       </div>
