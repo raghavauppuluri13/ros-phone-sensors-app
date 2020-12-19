@@ -4,11 +4,12 @@ import CameraIMU from "./scripts/camera_imu.ts";
 
 function App() {
   const [rosMasterIp, setRosMasterIp] = useState(
-    localStorage.getItem('rosMasterIp') | ""
+    window.localStorage.getItem('rosMasterIp') | ""
   );
   const [frontFacing, setFrontFacing] = useState(
-    localStorage.getItem('frontFacing') | true
+    window.localStorage.getItem('frontFacing') | false
   );
+  window.localStorage.setItem("frontFacing", frontFacing);
 
   var camera_imu;
   const padding = 10;
@@ -23,12 +24,13 @@ function App() {
   };
 
   const onRosIpChange = (event) => {
-    localStorage.setItem("rosMasterIp", event.target.value);
+    window.localStorage.setItem("rosMasterIp", event.target.value);
+    console.log(event.target.value);
     setRosMasterIp(event.target.value);
   };
 
   const onCameraDirChange = () => {
-    localStorage.setItem("frontFacing", !frontFacing);
+    window.localStorage.setItem("frontFacing", !frontFacing);
     setFrontFacing(!frontFacing);
   };
 
@@ -36,13 +38,24 @@ function App() {
 
   const getImageCb = () => {
     if (webcamRef) {
-      return webcamRef.current.getScreenshot(outputDims);
+      const screenshot = webcamRef.current.getScreenshot(outputDims);
+      if (screenshot)
+      {
+        return screenshot;
+      }
+      else {
+        window.alert(`Camera not accessible!`);
+      }
     }
   };
 
   const initCameraIMU = () => {
-    camera_imu = new CameraIMU(rosMasterIp);
-    camera_imu.start(getImageCb);
+    try {
+      camera_imu = new CameraIMU(rosMasterIp);
+      camera_imu.start(getImageCb);
+    } catch (error) {
+      window.alert(`An error has occured: ${error}`);
+    }
   };
 
   return (

@@ -12,11 +12,16 @@ class CameraIMU {
   gamma: number | null;
   vgamma: number | null;
   y: number | null;
+  is_mobile: boolean;
   image_topic: ROSLIB.Topic;
   imu_topic: ROSLIB.Topic;
 
   constructor(ros_master_ip: string) {
-    ros_master_ip = "wss://" + ros_master_ip + ":9090"
+    this.is_mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    ros_master_ip = `wss://${ros_master_ip}:9090`;
+    console.log(ros_master_ip);
+
     // INITIALIZATION
     this.ros = new ROSLIB.Ros({
       url: ros_master_ip
@@ -49,11 +54,13 @@ class CameraIMU {
       name: "/gyro",
       messageType: "sensor_msgs/Imu",
     });
-    this.initialize_event_handlers();
+    if (this.is_mobile) {
+      this.initialize_event_handlers();
+    }
   }
 
   initialize_event_handlers() {
-    if (window.location.protocol != "https:") {
+    if (window.location.protocol !== "https:") {
       window.location.href = "https:" + window.location.href.substring(window.location.protocol.length);
     }
 
@@ -62,7 +69,7 @@ class CameraIMU {
       DeviceOrientationEvent.requestPermission()
         .then(response => {
           // (optional) Do something after API prompt dismissed.
-          if (response == "granted") {
+          if (response === "granted") {
             window.addEventListener("deviceorientation", (eventData) => {
               // gamma is the left-to-right tilt in degrees, where right is positive
               this.gamma = eventData.gamma;
@@ -85,7 +92,7 @@ class CameraIMU {
       DeviceMotionEvent.requestPermission()
         .then(response => {
           // (optional) Do something after API prompt dismissed.
-          if (response == "granted") {
+          if (response === "granted") {
             window.addEventListener("devicemotion", (eventData) => {
               // Grab the acceleration from the results
               var acceleration = eventData.acceleration;
@@ -122,7 +129,7 @@ class CameraIMU {
     var gamma_radian = ((this.gamma! + 360) / 360 * 2 * Math.PI) % (2 * Math.PI);
     var alpha_radian = ((this.alpha! + 360) / 360 * 2 * Math.PI) % (2 * Math.PI);
     var eurlerpose = new THREE.Euler(beta_radian, gamma_radian, alpha_radian);
-    var quaternionpose = new THREE.Quaternion;
+    var quaternionpose = new THREE.Quaternion();
     quaternionpose.setFromEuler(eurlerpose);
 
     var imuMessage = new ROSLIB.Message({
@@ -156,10 +163,12 @@ class CameraIMU {
   start(getImageCb: () => string) {
     setInterval(() => {
       this.imageSnapshot(getImageCb);
-    }, 250);       // publish an image 4 times per second
-    setInterval(() => {
-      this.imuSnapshot();
-    }, 100);       // publish an IMU message 10 times per second
+    }, 100);       // publish an image 4 times per second
+    if (this.is_mobile) {
+      setInterval(() => {
+        this.imuSnapshot();
+      }, 100);       // publish an IMU message 10 times per second
+    }
   }
 }
 
